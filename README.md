@@ -25,7 +25,6 @@ code, comments, and commits are in English.
   values on Dawn's `variant-change` event; no network calls.
 - **Security:** values emitted via the `json` filter and updated with
   `textContent` (never `innerHTML`).
-- Design reference (`figma-design.jpg`) is intentionally **git‑ignored**.
 
 ### 3. Checkout value — recommendations
 - [`docs/checkout-value-recommendations.md`](docs/checkout-value-recommendations.md)

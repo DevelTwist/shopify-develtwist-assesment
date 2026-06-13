@@ -31,6 +31,20 @@
 <noscript>{{ 'component-cart-items.css' | asset_url | stylesheet_tag }}</noscript>
 
 <style>
+  /* White header: pure #fff background with #000 text, icons and separator.
+     Scoped to .header-wrapper so other sections using the same color scheme
+     stay untouched. We override the scheme variables (not just `background`)
+     so the `gradient` class and every foreground-derived color follow along. */
+  .header-wrapper {
+    --color-background: 255, 255, 255;
+    --gradient-background: #ffffff;
+    --color-foreground: 0, 0, 0;
+  }
+
+  .header-wrapper.header-wrapper--border-bottom {
+    border-bottom-color: rgb(0, 0, 0);
+  }
+
   header-drawer {
     justify-self: start;
     margin-left: -1.2rem;

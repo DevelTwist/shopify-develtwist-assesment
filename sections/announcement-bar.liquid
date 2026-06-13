@@ -1,3 +1,17 @@
+{%- comment -%}
+  White announcement bar with #000 text and icons, matching the header.
+  Scoped to .announcement-bar so other sections using the same color scheme
+  stay untouched. We override the scheme variables (not just `background`) so
+  the `gradient` class and every foreground-derived color follow along.
+{%- endcomment -%}
+{%- style -%}
+  .announcement-bar {
+    --color-background: 255, 255, 255;
+    --gradient-background: #ffffff;
+    --color-foreground: 0, 0, 0;
+  }
+{%- endstyle -%}
+
 {%- for block in section.blocks -%}
   {%- case block.type -%}
     {%- when 'announcement' -%}

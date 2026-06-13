@@ -1,0 +1,32 @@
+{
+  "name": "Tag California customers as High Value",
+  "schemaVersion": "1.0",
+  "comment": "When an order is created from California (billing or shipping), add the High Value and California tags to the customer. Province code 'CA' is locale-independent. To treat 'purchase' as 'paid', change the trigger to 'Order paid' or add a financialStatus = PAID condition.",
+  "trigger": {
+    "type": "shopify/order/created",
+    "title": "Order created"
+  },
+  "conditions": {
+    "logic": "or",
+    "checks": [
+      {
+        "field": "order.billingAddress.provinceCode",
+        "operator": "==",
+        "value": "CA"
+      },
+      {
+        "field": "order.shippingAddress.provinceCode",
+        "operator": "==",
+        "value": "CA"
+      }
+    ]
+  },
+  "actions": [
+    {
+      "type": "shopify/customer/addTags",
+      "title": "Add customer tags",
+      "customerId": "{{ order.customer.id }}",
+      "tags": ["High Value", "California"]
+    }
+  ]
+}

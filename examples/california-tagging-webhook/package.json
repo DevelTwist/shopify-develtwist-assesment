@@ -1,0 +1,17 @@
+{
+  "name": "california-tagging-webhook",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Reference Shopify orders/create webhook that tags California buyers as High Value.",
+  "type": "commonjs",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}

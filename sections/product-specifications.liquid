@@ -1,0 +1,213 @@
+{% comment %}
+  Product Specifications
+
+  Renders a specification grid (one card per spec) for the current product.
+  Each variant gets its own set of values, picked deterministically from a
+  per-spec pool so the assignment is "random" but stable across reloads.
+
+  The visible cards show the selected/first available variant. A small web
+  component (product-specifications.js) listens for Dawn's `variant-change`
+  pub/sub event and swaps the values when the customer changes variant.
+
+  Values are emitted through the `json` filter, which guarantees valid,
+  escaped JSON and prevents breaking out of the script context.
+{% endcomment %}
+
+{{ 'section-product-specifications.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'product-specifications.js' | asset_url }}" defer="defer"></script>
+
+{%- liquid
+  assign heading = section.settings.heading | default: product.title
+  assign current_variant = product.selected_or_first_available_variant
+
+  # Position of the selected variant; used as the spec "salt" so the visible
+  # grid matches the per-variant JSON map (which is keyed by loop position).
+  assign current_variant_index = 0
+  for variant in product.variants
+    if variant.id == current_variant.id
+      assign current_variant_index = forloop.index0
+      break
+    endif
+  endfor
+-%}
+
+<div class="color-{{ section.settings.color_scheme }} gradient">
+  <product-specifications
+    class="product-specifications section-{{ section.id }}-padding isolate"
+    data-section-id="{{ section.id }}"
+  >
+    <div class="page-width">
+      <div class="product-specifications__header">
+        {%- if section.settings.eyebrow != blank -%}
+          <p class="product-specifications__eyebrow">
+            <span>{{ section.settings.eyebrow | escape }}</span>
+          </p>
+        {%- endif -%}
+
+        {%- if heading != blank -%}
+          <h2 class="product-specifications__title">
+            {{- heading | escape -}}
+            {%- if section.settings.heading_accent != blank -%}
+              <span class="product-specifications__title-accent">
+                {{- section.settings.heading_accent | escape -}}
+              </span>
+            {%- endif -%}
+          </h2>
+        {%- endif -%}
+
+        {%- if section.settings.subtitle != blank -%}
+          <p class="product-specifications__subtitle">{{ section.settings.subtitle | escape }}</p>
+        {%- endif -%}
+      </div>
+
+      {%- if section.blocks.size > 0 -%}
+        <ul class="product-specifications__grid" role="list">
+          {%- for block in section.blocks -%}
+            {%- capture chosen_value -%}
+              {%- render 'pick-spec-value',
+                values: block.settings.values,
+                index: forloop.index0,
+                variant_id: current_variant.id,
+                salt: current_variant_index
+              -%}
+            {%- endcapture -%}
+            <li class="product-specifications__card" {{ block.shopify_attributes }}>
+              <p class="product-specifications__label">{{ block.settings.label | escape }}</p>
+              <p
+                class="product-specifications__value"
+                data-spec-value
+                data-spec-index="{{ forloop.index0 }}"
+              >
+                {{- chosen_value | strip | escape -}}
+              </p>
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+    </div>
+
+    {%- comment -%} Per-variant value map consumed by product-specifications.js {%- endcomment -%}
+    <script type="application/json" data-specifications-data>
+      {
+        {%- for variant in product.variants -%}
+          "{{ variant.id }}": [
+            {%- for block in section.blocks -%}
+              {%- capture spec_value -%}
+                {%- render 'pick-spec-value',
+                  values: block.settings.values,
+                  index: forloop.index0,
+                  variant_id: variant.id,
+                  salt: forloop.parentloop.index0
+                -%}
+              {%- endcapture -%}
+              {{ spec_value | strip | json }}{%- unless forloop.last -%},{%- endunless -%}
+            {%- endfor -%}
+          ]{%- unless forloop.last -%},{%- endunless -%}
+        {%- endfor -%}
+      }
+    </script>
+  </product-specifications>
+</div>
+
+{% schema %}
+{
+  "name": "Product specifications",
+  "tag": "section",
+  "class": "section",
+  "enabled_on": {
+    "templates": ["product"]
+  },
+  "settings": [
+    {
+      "type": "text",
+      "id": "eyebrow",
+      "label": "Eyebrow",
+      "default": "What's inside"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "info": "Leave blank to use the product title."
+    },
+    {
+      "type": "text",
+      "id": "heading_accent",
+      "label": "Heading accent word",
+      "default": "Specs"
+    },
+    {
+      "type": "textarea",
+      "id": "subtitle",
+      "label": "Subtitle",
+      "default": "Complete snowboard variants. Pre-tuned, waxed, and ready to ride."
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "background-2"
+    },
+    {
+      "type": "header",
+      "content": "Section padding"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Top padding",
+      "default": 52
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px",
+      "label": "Bottom padding",
+      "default": 52
+    }
+  ],
+  "blocks": [
+    {
+      "type": "spec",
+      "name": "Specification",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "Spec"
+        },
+        {
+          "type": "textarea",
+          "id": "values",
+          "label": "Possible values",
+          "info": "One value per line. A value is picked at random per variant (stable across reloads).",
+          "default": "Value A\nValue B\nValue C"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Product specifications",
+      "blocks": [
+        { "type": "spec", "settings": { "label": "Board Type", "values": "All-Mountain\nFreestyle\nFreeride\nPowder\nCarving" } },
+        { "type": "spec", "settings": { "label": "Length", "values": "148 cm\n152 cm\n155 cm\n158 cm\n162 cm" } },
+        { "type": "spec", "settings": { "label": "Flex Rating", "values": "Soft\nMedium\nMedium-Stiff\nStiff" } },
+        { "type": "spec", "settings": { "label": "Profile", "values": "Camber\nRocker\nHybrid Camber\nFlat" } },
+        { "type": "spec", "settings": { "label": "Core Material", "values": "Aspen/Spruce Blend\nPoplar Core\nBamboo Core\nPaulownia Core" } },
+        { "type": "spec", "settings": { "label": "Base", "values": "Sintered\nExtruded\nSintered Pro" } },
+        { "type": "spec", "settings": { "label": "Skill Level", "values": "Beginner\nIntermediate\nAdvanced\nExpert" } },
+        { "type": "spec", "settings": { "label": "Terrain", "values": "Groomed\nAll-Mountain\nBackcountry\nPark & Pipe" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

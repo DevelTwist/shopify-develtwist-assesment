@@ -1,0 +1,43 @@
+{% comment %}
+  Picks one value from a newline-separated pool, deterministically per variant.
+
+  The same (values, index, variant_id) always resolves to the same value, so
+  the assignment looks random across specs/variants but stays stable across
+  reloads. This is the single source of truth used by both the visible grid
+  and the JSON data map in sections/product-specifications.liquid.
+
+  Accepts:
+  - values: {String} newline-separated list of candidate values.
+  - index: {Number} zero-based position of the spec (decorrelates specs).
+  - variant_id: {Number} the variant id used as the seed.
+  - salt: {Number} extra entropy (e.g. variant position) so consecutive
+    variant ids — which often differ by a power of two — don't collapse to the
+    same value for power-of-two pool sizes. Optional, defaults to 0.
+
+  Usage:
+  {% render 'pick-spec-value', values: block.settings.values, index: forloop.index0, variant_id: variant.id, salt: forloop.index0 %}
+{% endcomment %}
+{%- liquid
+  # Split the newline-separated pool. newline_to_br + split avoids a literal
+  # multi-line string, which a liquid tag block would mis-read as a new tag.
+  assign lines = values | newline_to_br | split: '<br />'
+  assign pool = ''
+  for line in lines
+    assign trimmed = line | strip
+    if trimmed != blank
+      assign pool = pool | append: trimmed | append: '|::|'
+    endif
+  endfor
+  assign pool = pool | split: '|::|'
+  assign pool_size = pool.size | at_least: 1
+
+  assign offset = index | times: 31
+  assign salt_value = salt | default: 0 | times: 7919
+  assign seed = variant_id | plus: offset | plus: salt_value
+  assign chosen_index = seed | modulo: pool_size
+  assign chosen = pool[chosen_index]
+  if chosen == blank
+    assign chosen = pool[0]
+  endif
+  echo chosen
+-%}

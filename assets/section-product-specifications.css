@@ -1,0 +1,94 @@
+.product-specifications {
+  --spec-accent: #9b2c2c;
+  padding-top: var(--padding-top, 5.2rem);
+  padding-bottom: var(--padding-bottom, 5.2rem);
+}
+
+.product-specifications__header {
+  max-width: 72rem;
+  margin-bottom: 4rem;
+}
+
+.product-specifications__eyebrow {
+  display: flex;
+  align-items: center;
+  gap: 1.2rem;
+  margin: 0 0 1.2rem;
+  color: var(--spec-accent);
+  font-size: 1.2rem;
+  font-weight: 600;
+  letter-spacing: 0.2rem;
+  text-transform: uppercase;
+}
+
+.product-specifications__eyebrow::after {
+  content: '';
+  width: 3.2rem;
+  height: 0.1rem;
+  background-color: currentColor;
+}
+
+.product-specifications__title {
+  margin: 0 0 1.6rem;
+  font-size: clamp(2.8rem, 4vw, 4.4rem);
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.product-specifications__title-accent {
+  color: var(--spec-accent);
+  margin-inline-start: 0.5rem;
+}
+
+.product-specifications__subtitle {
+  margin: 0;
+  font-size: 1.6rem;
+  color: rgba(var(--color-foreground), 0.75);
+}
+
+.product-specifications__grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.6rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.product-specifications__card {
+  padding: 2rem 2.2rem;
+  border: 0.1rem solid rgba(var(--color-foreground), 0.14);
+  border-radius: 1rem;
+  background-color: rgb(var(--color-background));
+  transition: border-color var(--duration-short, 0.1s) ease, transform var(--duration-short, 0.1s) ease;
+}
+
+.product-specifications__card:hover {
+  border-color: rgba(var(--color-foreground), 0.4);
+}
+
+.product-specifications__label {
+  margin: 0 0 0.6rem;
+  font-family: var(--font-heading-family);
+  font-weight: var(--font-heading-weight, 600);
+  font-size: 2rem;
+  line-height: 1.15;
+}
+
+.product-specifications__value {
+  margin: 0;
+  font-size: 1.4rem;
+  color: rgba(var(--color-foreground), 0.7);
+}
+
+@media screen and (max-width: 989px) {
+  .product-specifications__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .product-specifications__grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

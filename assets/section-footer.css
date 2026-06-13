@@ -514,3 +514,53 @@
     }
   }
 }
+
+/* ===========================================================================
+   Newsletter footer — "Join our email list" horizontal layout (design):
+   heading + subtext on the left, rounded email pill on the right. Scoped to
+   the footer newsletter block so nothing else changes.
+   =========================================================================== */
+.footer-block__newsletter-subtext {
+  margin: 0.8rem 0 0;
+  font-size: 1.4rem;
+  color: rgba(var(--color-foreground), 0.75);
+}
+
+.footer-block__newsletter .footer-block__heading {
+  margin-bottom: 0;
+}
+
+@media screen and (min-width: 750px) {
+  .footer-block__newsletter {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 4rem;
+    width: 100%;
+    text-align: left;
+  }
+
+  .footer-block__newsletter-text {
+    flex: 1 1 auto;
+  }
+
+  .footer-block__newsletter .newsletter-form {
+    flex: 0 1 52rem;
+    max-width: 52rem;
+    margin: 0;
+  }
+
+  .footer-block__newsletter .newsletter-form__field-wrapper {
+    max-width: none;
+  }
+}
+
+/* Rounded pill input with the arrow submit button tucked inside. */
+.footer-block__newsletter .field {
+  --inputs-radius: 5rem;
+  --inputs-radius-outset: 5rem;
+}
+
+.footer-block__newsletter .newsletter-form__field-wrapper .field__input {
+  padding-left: 2.4rem;
+}

@@ -43,6 +43,31 @@
           endif
       endcase
     endfor
+
+    # Resolve an optional per-variant swatch image (variant metafield
+    # custom.swatch_image). Find the first variant whose option at this position
+    # matches the value, and use its image. Lets merchants set image/icon
+    # swatches without the native swatch UI; falls back to swatch.liquid logic.
+    assign swatch_image = null
+    for variant in product.variants
+      case option.position
+        when 1
+          if variant.option1 == value
+            assign swatch_image = variant.metafields.custom.swatch_image.value
+            break
+          endif
+        when 2
+          if variant.option2 == value
+            assign swatch_image = variant.metafields.custom.swatch_image.value
+            break
+          endif
+        when 3
+          if variant.option3 == value
+            assign swatch_image = variant.metafields.custom.swatch_image.value
+            break
+          endif
+      endcase
+    endfor
   -%}
 
   {%- if block.settings.picker_type == 'swatch' -%}
@@ -64,7 +89,7 @@
       for="{{ section.id }}-{{ option.position }}-{{ forloop.index0 }}"
       title="{{ value | escape }}"
     >
-      {%- render 'swatch', value: value, option: option, index: forloop.index0, count: option.values.size -%}
+      {%- render 'swatch', value: value, image_override: swatch_image, index: forloop.index0, count: option.values.size -%}
       <span class="product-form__swatch-label">{{ value -}}</span>
       <span class="visually-hidden">{{ 'products.product.variant_sold_out_or_unavailable' | t }}</span>
     </label>

@@ -2,6 +2,7 @@
   Renders an icon swatch for a product option value.
 
   Resolution order (most specific wins):
+    0. image_override  (per-variant `custom.swatch_image` metafield, passed in)
     1. Native Shopify swatch image  (set in Admin > Products > option value)
     2. Native Shopify swatch color  (set in Admin)
     3. Example brand gradients for this catalog (demo only)
@@ -20,17 +21,21 @@
 
   Accepts:
   - value: {Object} the product option value (e.g. "Ice").
+  - image_override: {Image} optional image (variant metafield) to use first.
   - index: {Number} zero-based position of the value within the option.
   - count: {Number} total number of values for the option.
 
   Usage:
-  {% render 'swatch', value: value, index: forloop.index0, count: option.values.size %}
+  {% render 'swatch', value: value, image_override: swatch_image, index: forloop.index0, count: option.values.size %}
 {% endcomment %}
 
 {%- liquid
   assign swatch_style = ''
 
-  if value.swatch.image
+  if image_override != blank
+    assign override_url = image_override | image_url: width: 100
+    assign swatch_style = 'background-image: url(' | append: override_url | append: '); background-size: cover;'
+  elsif value.swatch.image
     assign swatch_image = value.swatch.image | image_url: width: 100
     assign swatch_style = 'background-image: url(' | append: swatch_image | append: '); background-size: cover;'
   elsif value.swatch.color

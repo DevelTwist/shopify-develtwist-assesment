@@ -13,6 +13,18 @@
   escaped JSON and prevents breaking out of the script context.
 {% endcomment %}
 
+{%- comment -%}
+  Design fonts (Figma): DM Sans (body/UI) and Lora (headings). These are not part
+  of the theme's font set, so we load them from Google Fonts. preconnect warms up
+  the connection and `display=swap` avoids invisible text while they load.
+{%- endcomment -%}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link
+  rel="stylesheet"
+  href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400&family=Lora:wght@600;700&display=swap"
+>
+
 {{ 'section-product-specifications.css' | asset_url | stylesheet_tag }}
 <script src="{{ 'product-specifications.js' | asset_url }}" defer="defer"></script>
 
@@ -31,12 +43,12 @@
   endfor
 -%}
 
-<div class="color-{{ section.settings.color_scheme }} gradient">
+<div class="product-specifications-bg color-{{ section.settings.color_scheme }} gradient">
   <product-specifications
     class="product-specifications section-{{ section.id }}-padding isolate"
     data-section-id="{{ section.id }}"
   >
-    <div class="page-width">
+    <div class="product-specifications__inner">
       <div class="product-specifications__header">
         {%- if section.settings.eyebrow != blank -%}
           <p class="product-specifications__eyebrow">

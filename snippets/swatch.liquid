@@ -4,27 +4,31 @@
   Resolution order (most specific wins):
     1. Native Shopify swatch image  (set in Admin > Products > option value)
     2. Native Shopify swatch color  (set in Admin)
-    3. Curated color map for common color names
-    4. Deterministic HSL hue derived from the value index (visual fallback)
+    3. Example brand gradients for this catalog (demo only)
+    4. Curated map of common color NAMES -> vetted hex (reusable)
+    5. Deterministic HSL hue from the value index (never-blank fallback)
 
-  Security note: the raw option value is never interpolated into the inline
-  style. Only vetted values (native swatch data, curated hex codes, or a
-  computed HSL string) reach the `style` attribute, which prevents CSS
-  injection through merchant/customer-controlled option names.
+  Production note: native swatches (1 & 2) are the source of truth — set them in
+  the admin and they win. Native *color* swatches are solid; for a gradient look
+  upload a swatch *image* instead. The brand gradients in step 3 are demo values
+  for this store's option names — replace them with native swatch images in
+  production. The generic color map (step 4) stays reusable across stores.
+
+  Security: the raw option value never reaches the `style` attribute. Only native
+  swatch data, vetted hex/gradient strings, or a computed HSL string are emitted,
+  which prevents CSS injection through merchant/customer-controlled option names.
 
   Accepts:
-  - value: {String} the product option value (e.g. "Ice").
-  - option: {Object} the parent product_option object.
+  - value: {Object} the product option value (e.g. "Ice").
   - index: {Number} zero-based position of the value within the option.
   - count: {Number} total number of values for the option.
 
   Usage:
-  {% render 'swatch', value: value, option: option, index: forloop.index0, count: option.values.size %}
+  {% render 'swatch', value: value, index: forloop.index0, count: option.values.size %}
 {% endcomment %}
 
 {%- liquid
   assign swatch_style = ''
-  assign normalized = value | downcase | strip
 
   if value.swatch.image
     assign swatch_image = value.swatch.image | image_url: width: 100
@@ -32,7 +36,10 @@
   elsif value.swatch.color
     assign swatch_style = 'background-color: ' | append: value.swatch.color | append: ';'
   else
+    assign normalized = value | downcase | strip
     case normalized
+      # --- Example brand gradients (demo only) — replace with native swatch
+      #     images in production; these names are specific to this catalog. ---
       when 'ice'
         assign swatch_style = 'background: linear-gradient(135deg, #d9f4f4, #6fc7c7);'
       when 'dawn'
@@ -43,31 +50,48 @@
         assign swatch_style = 'background: linear-gradient(135deg, #7af0ff, #3a6bff);'
       when 'sunset'
         assign swatch_style = 'background: linear-gradient(135deg, #ffb347, #ff5e7e);'
+      # --- Generic color names (reusable across stores) ---
       when 'black'
         assign swatch_style = 'background-color: #1a1a1a;'
       when 'white'
         assign swatch_style = 'background-color: #f4f4f4;'
+      when 'grey', 'gray'
+        assign swatch_style = 'background-color: #9aa0a6;'
+      when 'silver'
+        assign swatch_style = 'background-color: #c0c0c0;'
       when 'red'
         assign swatch_style = 'background-color: #d12d2d;'
-      when 'blue'
-        assign swatch_style = 'background-color: #2d5bd1;'
-      when 'green'
-        assign swatch_style = 'background-color: #2da14e;'
-      when 'yellow'
-        assign swatch_style = 'background-color: #f2c037;'
+      when 'maroon', 'burgundy'
+        assign swatch_style = 'background-color: #7b1f2b;'
       when 'orange'
         assign swatch_style = 'background-color: #f2843c;'
+      when 'brown'
+        assign swatch_style = 'background-color: #8b5a2b;'
+      when 'beige', 'cream', 'tan'
+        assign swatch_style = 'background-color: #e8dcc4;'
+      when 'yellow', 'gold'
+        assign swatch_style = 'background-color: #f2c037;'
+      when 'green'
+        assign swatch_style = 'background-color: #2da14e;'
+      when 'olive'
+        assign swatch_style = 'background-color: #808000;'
+      when 'teal'
+        assign swatch_style = 'background-color: #138d8d;'
+      when 'blue'
+        assign swatch_style = 'background-color: #2d5bd1;'
+      when 'navy'
+        assign swatch_style = 'background-color: #1f2d5b;'
       when 'purple'
         assign swatch_style = 'background-color: #8b3cf2;'
       when 'pink'
         assign swatch_style = 'background-color: #f25c9e;'
-      when 'grey', 'gray'
-        assign swatch_style = 'background-color: #9aa0a6;'
-      else
-        assign safe_count = count | at_least: 1
-        assign hue = index | times: 360 | divided_by: safe_count
-        assign swatch_style = 'background: hsl(' | append: hue | append: ', 62%, 58%);'
     endcase
+
+    if swatch_style == blank
+      assign safe_count = count | at_least: 1
+      assign hue = index | times: 360 | divided_by: safe_count
+      assign swatch_style = 'background: hsl(' | append: hue | append: ', 62%, 58%);'
+    endif
   endif
 -%}
 

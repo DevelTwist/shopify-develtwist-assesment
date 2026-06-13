@@ -1,0 +1,22 @@
+# --- Design source (must never be committed) ---
+# The Figma reference export is a private design asset shared for the build only.
+figma-design.jpg
+figma-design.png
+*.fig
+
+# --- OS / editor noise ---
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+
+# --- Node (used only by the reference webhook example) ---
+node_modules/
+npm-debug.log*
+.env
+.env.*
+
+# --- Shopify CLI ---
+.shopify/
+*.theme-check-cache

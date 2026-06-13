@@ -1,0 +1,74 @@
+{% comment %}
+  Renders an icon swatch for a product option value.
+
+  Resolution order (most specific wins):
+    1. Native Shopify swatch image  (set in Admin > Products > option value)
+    2. Native Shopify swatch color  (set in Admin)
+    3. Curated color map for common color names
+    4. Deterministic HSL hue derived from the value index (visual fallback)
+
+  Security note: the raw option value is never interpolated into the inline
+  style. Only vetted values (native swatch data, curated hex codes, or a
+  computed HSL string) reach the `style` attribute, which prevents CSS
+  injection through merchant/customer-controlled option names.
+
+  Accepts:
+  - value: {String} the product option value (e.g. "Ice").
+  - option: {Object} the parent product_option object.
+  - index: {Number} zero-based position of the value within the option.
+  - count: {Number} total number of values for the option.
+
+  Usage:
+  {% render 'swatch', value: value, option: option, index: forloop.index0, count: option.values.size %}
+{% endcomment %}
+
+{%- liquid
+  assign swatch_style = ''
+  assign normalized = value | downcase | strip
+
+  if value.swatch.image
+    assign swatch_image = value.swatch.image | image_url: width: 100
+    assign swatch_style = 'background-image: url(' | append: swatch_image | append: '); background-size: cover;'
+  elsif value.swatch.color
+    assign swatch_style = 'background-color: ' | append: value.swatch.color | append: ';'
+  else
+    case normalized
+      when 'ice'
+        assign swatch_style = 'background: linear-gradient(135deg, #d9f4f4, #6fc7c7);'
+      when 'dawn'
+        assign swatch_style = 'background: linear-gradient(135deg, #ffd9b3, #ff8f70);'
+      when 'powder'
+        assign swatch_style = 'background: linear-gradient(135deg, #f6f0ff, #c9b6f0);'
+      when 'electric'
+        assign swatch_style = 'background: linear-gradient(135deg, #7af0ff, #3a6bff);'
+      when 'sunset'
+        assign swatch_style = 'background: linear-gradient(135deg, #ffb347, #ff5e7e);'
+      when 'black'
+        assign swatch_style = 'background-color: #1a1a1a;'
+      when 'white'
+        assign swatch_style = 'background-color: #f4f4f4;'
+      when 'red'
+        assign swatch_style = 'background-color: #d12d2d;'
+      when 'blue'
+        assign swatch_style = 'background-color: #2d5bd1;'
+      when 'green'
+        assign swatch_style = 'background-color: #2da14e;'
+      when 'yellow'
+        assign swatch_style = 'background-color: #f2c037;'
+      when 'orange'
+        assign swatch_style = 'background-color: #f2843c;'
+      when 'purple'
+        assign swatch_style = 'background-color: #8b3cf2;'
+      when 'pink'
+        assign swatch_style = 'background-color: #f25c9e;'
+      when 'grey', 'gray'
+        assign swatch_style = 'background-color: #9aa0a6;'
+      else
+        assign safe_count = count | at_least: 1
+        assign hue = index | times: 360 | divided_by: safe_count
+        assign swatch_style = 'background: hsl(' | append: hue | append: ', 62%, 58%);'
+    endcase
+  endif
+-%}
+
+<span class="product-form__swatch-icon" style="{{ swatch_style }}" aria-hidden="true"></span>

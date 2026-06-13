@@ -243,6 +243,14 @@ html.no-js .no-js-hidden {
   display: none !important;
 }
 
+/* Constrain all page-width content to 1200px (the common content-width standard
+   and Dawn's own default). The product specifications section intentionally does
+   NOT use `.page-width`, so it stays full-bleed (the one exception). `html:root`
+   outranks the theme's `:root` so this wins regardless of stylesheet order. */
+html:root {
+  --page-width: 1200px;
+}
+
 .page-width {
   max-width: var(--page-width);
   margin: 0 auto;

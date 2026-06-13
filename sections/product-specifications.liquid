@@ -76,10 +76,10 @@
         <ul class="product-specifications__grid" role="list">
           {%- for block in section.blocks -%}
             {%- capture chosen_value -%}
-              {%- render 'pick-spec-value',
-                values: block.settings.values,
+              {%- render 'spec-value',
+                block: block,
+                variant: current_variant,
                 index: forloop.index0,
-                variant_id: current_variant.id,
                 salt: current_variant_index
               -%}
             {%- endcapture -%}
@@ -105,10 +105,10 @@
           "{{ variant.id }}": [
             {%- for block in section.blocks -%}
               {%- capture spec_value -%}
-                {%- render 'pick-spec-value',
-                  values: block.settings.values,
+                {%- render 'spec-value',
+                  block: block,
+                  variant: variant,
                   index: forloop.index0,
-                  variant_id: variant.id,
                   salt: forloop.parentloop.index0
                 -%}
               {%- endcapture -%}
@@ -197,10 +197,16 @@
           "default": "Spec"
         },
         {
+          "type": "text",
+          "id": "metafield",
+          "label": "Product metafield (optional)",
+          "info": "Format: namespace.key (e.g. custom.length). Read from the variant first, then the product. If empty or missing, a random value is used."
+        },
+        {
           "type": "textarea",
           "id": "values",
-          "label": "Possible values",
-          "info": "One value per line. A value is picked at random per variant (stable across reloads).",
+          "label": "Fallback values",
+          "info": "One value per line. Used only when no metafield value is set; a value is picked at random per variant (stable across reloads).",
           "default": "Value A\nValue B\nValue C"
         }
       ]

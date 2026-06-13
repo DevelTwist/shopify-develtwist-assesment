@@ -1,0 +1,55 @@
+{% comment %}
+  Resolves a single product specification value for a given variant.
+
+  Priority:
+    1. Variant metafield  (block.settings.metafield = "namespace.key")
+    2. Product metafield   (same namespace.key)
+    3. Deterministic "random" pick from block.settings.values (see
+       [[pick-spec-value]]) — the original fallback behaviour.
+
+  This lets merchants set real values per product/variant from the admin while
+  keeping a sensible value when no metafield exists.
+
+  Security: the resolved value is returned raw; callers escape it (visible grid)
+  or pass it through the `json` filter (data map), so it never breaks out of its
+  context.
+
+  Accepts:
+  - block: {Object} the spec block (settings.metafield, settings.values).
+  - variant: {Object} the variant to resolve the value for.
+  - index: {Number} zero-based spec index (decorrelates specs in the fallback).
+  - salt: {Number} extra seed entropy for the fallback (variant position).
+
+  Usage:
+  {% render 'spec-value', block: block, variant: variant, index: forloop.index0, salt: 0 %}
+{% endcomment %}
+{%- liquid
+  assign resolved = ''
+  assign mf = block.settings.metafield | default: '' | strip
+
+  if mf != blank
+    assign parts = mf | split: '.'
+    assign ns = parts[0] | strip
+    assign key = parts[1] | strip
+    if ns != blank and key != blank
+      assign variant_mf = variant.metafields[ns][key]
+      if variant_mf.value != blank
+        assign resolved = variant_mf.value
+      else
+        assign product_mf = variant.product.metafields[ns][key]
+        if product_mf.value != blank
+          assign resolved = product_mf.value
+        endif
+      endif
+    endif
+  endif
+
+  if resolved == blank
+    capture resolved
+      render 'pick-spec-value', values: block.settings.values, index: index, variant_id: variant.id, salt: salt
+    endcapture
+    assign resolved = resolved | strip
+  endif
+
+  echo resolved
+-%}

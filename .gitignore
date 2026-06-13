@@ -16,6 +16,9 @@ node_modules/
 npm-debug.log*
 .env
 .env.*
+# ...but keep the committed example env template
+!.env.example
+!**/.env.example
 
 # --- Shopify CLI ---
 .shopify/

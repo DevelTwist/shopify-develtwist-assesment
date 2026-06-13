@@ -67,6 +67,13 @@
         class="product__info-container{% if section.settings.enable_sticky_info %} product__column-sticky{% endif %}"
       >
         {%- assign product_form_id = 'product-form-' | append: section.id -%}
+        {%- comment -%}
+          Tracks the open <div.product__purchase-group> wrapper, which groups the
+          quantity selector with the buy buttons so "Add to cart" sits beside the
+          quantity and "Buy it now" wraps below (see the CSS). block_order keeps
+          quantity_selector immediately before buy_buttons.
+        {%- endcomment -%}
+        {%- assign purchase_group_open = false -%}
 
         {%- for block in section.blocks -%}
           {%- case block.type -%}
@@ -198,6 +205,8 @@
                 </details>
               </div>
             {%- when 'quantity_selector' -%}
+              <div class="product__purchase-group">
+              {%- assign purchase_group_open = true -%}
               <div
                 id="Quantity-Form-{{ section.id }}"
                 class="product-form__input product-form__quantity{% if settings.inputs_shadow_vertical_offset != 0 and settings.inputs_shadow_vertical_offset < 0 %} product-form__quantity-top{% endif %}"
@@ -312,6 +321,10 @@
               {% render 'product-variant-picker', product: product, block: block, product_form_id: product_form_id %}
             {%- when 'buy_buttons' -%}
               {%- render 'buy-buttons', block: block, product: product, product_form_id: product_form_id, section_id: section.id, show_pickup_availability: true -%}
+              {%- if purchase_group_open -%}
+                </div>
+                {%- assign purchase_group_open = false -%}
+              {%- endif -%}
             {%- when 'rating' -%}
               {%- if product.metafields.reviews.rating.value != blank -%}
                 {% liquid
@@ -435,6 +448,8 @@
               %}
           {%- endcase -%}
         {%- endfor -%}
+        {%- comment -%} Safety net: close the purchase group if buy_buttons was absent. {%- endcomment -%}
+        {%- if purchase_group_open -%}</div>{%- endif -%}
         <a href="{{ product.url }}" class="link product__view-details animate-arrow">
           {{ 'products.product.view_full_details' | t }}
           {% render 'icon-arrow' %}

@@ -10,7 +10,11 @@
   {% render 'product-variant-picker', product: product, block: block, product_form_id: product_form_id %}
 {% endcomment %}
 {%- unless product.has_only_default_variant -%}
-  {%- if block.settings.picker_type == 'button' -%}
+  {%- comment -%}
+    Swatch and button pickers both render selectable radio pills, so they share
+    the <variant-radios> wrapper. Only the dropdown picker uses <variant-selects>.
+  {%- endcomment -%}
+  {%- if block.settings.picker_type == 'button' or block.settings.picker_type == 'swatch' -%}
     <variant-radios
       id="variant-radios-{{ section.id }}"
       class="no-js-hidden"
@@ -22,7 +26,7 @@
       {{ block.shopify_attributes }}
     >
       {%- for option in product.options_with_values -%}
-        <fieldset class="js product-form__input">
+        <fieldset class="js product-form__input{% if block.settings.picker_type == 'swatch' %} product-form__input--swatch{% endif %}">
           <legend class="form__label">{{ option.name }}</legend>
           {% render 'product-variant-options', product: product, option: option, block: block %}
         </fieldset>

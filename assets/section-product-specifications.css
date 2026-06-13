@@ -35,7 +35,7 @@
 }
 
 .product-specifications__header {
-  max-width: 72rem;
+  max-width: 100%;
   margin-bottom: 4rem;
 }
 
@@ -96,6 +96,9 @@
 }
 
 .product-specifications__card {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
   padding: 17px;
   border: 1px solid #d0d0d0;
   border-radius: 1rem;
@@ -103,7 +106,7 @@
 }
 
 .product-specifications__label {
-  margin: 0 0 0.6rem;
+  margin: 0;
   font-family: var(--spec-font-serif);
   font-weight: 600;
   font-size: 25px;
@@ -116,7 +119,9 @@
   margin: 0;
   font-family: var(--spec-font-sans);
   font-weight: 400;
-  font-size: 1.4rem;
+  font-size: 12px;
+  line-height: 1; /* 100% */
+  letter-spacing: 0;
   color: #000000;
 }
 
